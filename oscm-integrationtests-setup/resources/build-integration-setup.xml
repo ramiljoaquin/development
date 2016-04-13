@@ -48,7 +48,7 @@
   <property name="working.dir" value="${work.bss.setup.dir}" />
 
   <import file="${macro.dir}/macrodefs_integration.xml" />
-  <import file="${work.bss.setup.install.dir}/macrodefs-glassfish.xml" />
+  <import file="${workspace.dir}/oscm-installation/install/macrodefs-glassfish.xml" />
 
   <taskdef file="${workspace.dir}/oscm-build-antextensions/javares/org/oscm/build/ant/tasks.xml">
     <classpath>
