@@ -47,7 +47,7 @@
 		<ant antfile="build.xml" target="unittests" />
 	</target>
 	<target name="runTravisIT" depends="_libraries">
-		<ant antfile=../"oscm-devruntime/javares/devscripts/build-dev-Database.xml" target="unit.CreateUser"/>
+		<ant antfile="../oscm-devruntime/javares/devscripts/build-dev-Database.xml" target="unit.CreateUser"/>
 		<antcall target="_integrationtests"/>
 	</target>
 
