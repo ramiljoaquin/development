@@ -233,7 +233,7 @@
   <target name="unittests" if="rununittests" depends="_init, package">
     <mkdir dir="${result.work.testreport.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
-      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m" printsummary="withOutAndErr">
         <jvmarg value="-Dfile.encoding=UTF8" />
         <!-- Run unit tests without Hibernate Search indexing -->
         <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
@@ -275,7 +275,7 @@
   <target name="integrationtests" if="integrationtests" depends="_init, package">
     <mkdir dir="${result.work.testreport.it.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.it.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
-      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m" printsummary="withOutAndErr">
         <jvmarg value="-Dfile.encoding=UTF8" />
         <!-- Run unit tests without Hibernate Search indexing -->
         <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
