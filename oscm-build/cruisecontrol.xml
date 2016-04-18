@@ -46,7 +46,10 @@
 	<target name="runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="unittests" />
 	</target>
-	<target name="runTravisIT" depends="_libraries, _integrationtests"/>
+	<target name="runTravisIT" depends="_libraries">
+		<ant antfile=../"oscm-devruntime/javares/devscripts/build-dev-Database.xml" target="unit.CreateUser"/>
+		<antcall target="_integrationtests"/>
+	</target>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="prepareForDocker" depends="_libraries, _clean, _package" />
