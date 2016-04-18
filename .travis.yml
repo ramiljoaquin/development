@@ -1,5 +1,5 @@
 language: java
-sudo: false
+sudo: required
 jdk: oraclejdk7
 cache:
   directories:
@@ -7,7 +7,7 @@ cache:
 services:
   - postgresql
 before_install:
-  - pip install codecov
+  - sudo pip install codecov
 install:
   - wget -P libraries/apache-ant-contrib/javalib/ http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar
   - mkdir ../document
