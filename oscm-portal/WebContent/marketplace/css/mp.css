@@ -3417,6 +3417,14 @@ form .formHighlight div.div-for-input {
 		!important;
 }
 
+.button-panel-with-padding {
+	padding-bottom: 25px;
+}
+
+#tabExternalPriceModel > div > form.form-in-tab {
+	padding-bottom: 25px;
+}
+
 div.responsive-table-panel {
 	overflow-y: auto;
 	margin-top: 10px;
@@ -3424,4 +3432,12 @@ div.responsive-table-panel {
 
 #organizationUnitPanelGrid {
 	padding:10px;
+}
+
+#configurationForm .hintAndMessageTable td > span.rf-msg.errorMsg {
+	float: left;
+}
+
+#configurationForm .hintAndMessageTable td {
+	min-width: 50px;
 }

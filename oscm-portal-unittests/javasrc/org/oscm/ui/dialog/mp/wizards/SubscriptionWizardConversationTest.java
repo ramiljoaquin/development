@@ -33,6 +33,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.ERROR_TO_PROCEED_SELECT_UNIT;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.SUBSCRIPTION_NAME_ALREADY_EXISTS;
 
@@ -139,7 +140,7 @@ public class SubscriptionWizardConversationTest {
 
     @Before
     public void setup() {
-        model = new SubscriptionWizardConversationModel();
+        model = spy(new SubscriptionWizardConversationModel());
 
         sdm = mock(ServiceDetailsModel.class);
         conversation = mock(Conversation.class);
@@ -335,6 +336,17 @@ public class SubscriptionWizardConversationTest {
         // then
         verify(bean, times(0)).addMessage(any(Severity.class), any(String.class));
         assertEquals("success", result);
+    }
+    
+    @Test
+    public void testPreviousFromPayment() {
+        // given
+        
+        // when
+        bean.previousFromPayment();
+        // then
+        
+        verify(model, times(1)).setReadOnlyParams(false);
     }
 
     @Test
