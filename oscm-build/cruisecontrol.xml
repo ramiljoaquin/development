@@ -46,9 +46,7 @@
 	<target name="runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="unittests" />
 	</target>
-	<target name="runTravisIT" depends="_libraries">
-		<ant antfile="build.xml" target="integrationtests" />
-	</target>
+	<target name="runTravisIT" depends="_libraries, _integrationtests"/>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="prepareForDocker" depends="_libraries, _clean, _package" />
