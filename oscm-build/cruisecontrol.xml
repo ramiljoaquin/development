@@ -50,7 +50,7 @@
 
 	<target name="devruntime.BUILD" description="Builds devruntime">
 		<ant dir="." antfile="build.xml" target="package">
-			<property name="projects" value="oscm-devruntime" />
+			<property name="projects" value="oscm-devruntime, oscm-app" />
 		</ant>
 	</target>
 
