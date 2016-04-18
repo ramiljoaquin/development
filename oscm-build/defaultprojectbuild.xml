@@ -230,6 +230,11 @@
     <resourcepackage packagefile="${package.file}" outputdir="${result.package.dir}" />
   </target>
 
+  <target name="compileOnly" if="package.file.exists" depends="_init, compile, package_hook">
+    <mkdir dir="${result.package.dir}" />
+    <resourcepackage packagefile="${package.file}" outputdir="${result.package.dir}" />
+  </target>
+
   <target name="unittests" if="rununittests" depends="_init, package">
     <mkdir dir="${result.work.testreport.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">

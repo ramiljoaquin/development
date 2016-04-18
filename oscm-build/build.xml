@@ -313,6 +313,10 @@
     <buildproject target="package" />
   </target>
 
+  <target name="compileOnly" depends="_log, _dependencies, _copyDocument" description="Resolves dependencies, compiles">
+    <buildproject target="compileOnly" />
+  </target>
+
   <target name="clean">
     <delete dir="${result.dir}" />
   </target>
