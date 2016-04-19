@@ -9,9 +9,9 @@
   </target>
   <target name="copyLibraries" depends="resolve">
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib"></copy>
-    <copy file="${ivy.lib.dir}/ant-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar"></copy>
-    <copy file="${ivy.lib.dir}/ant-junit-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar"></copy>
-    <copy file="${ivy.lib.dir}/ant-launcher-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-launcher.jar"></copy>
+    <copy file="${ivy.lib.dir}/ant-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar"></copy>
+    <copy file="${ivy.lib.dir}/ant-junit-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar"></copy>
+    <copy file="${ivy.lib.dir}/ant-launcher-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-launcher.jar"></copy>
     <copy file="${ivy.lib.dir}/wsit-ant-tasks-1.0.7.jar" tofile="${root.dir}/libraries/apache-ant/javalib/wsit-ant-tasks.jar"></copy>
     <copy file="${ivy.lib.dir}/bcel-5.1.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib/"></copy>
     <copy file="${ivy.lib.dir}/commons-httpclient-3.1.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib"></copy>
