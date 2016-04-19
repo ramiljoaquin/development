@@ -8,8 +8,6 @@ services:
   - postgresql
 before_install:
   - sudo pip install codecov
-  - sudo apt-get update
-  - sudo apt-get install ant
 install:
   - wget -P libraries/apache-ant-contrib/javalib/ http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar
   - mkdir ../document
@@ -18,8 +16,11 @@ install:
   - unzip master.zip
   - mv documentation-master/* .
   - cd ../development
+  - wget http://archive.apache.org/dist/ant/binaries/apache-ant-1.9.4-bin.tar.gz
+  - tar -xvzf apache-ant-1.9.4-bin.tar.gz
 env:
   global:
+    - ANT_HOME="apache-ant-1.9.4"
     - ANT_OPTS=-Xmx4g
     - COMUPTERNAME=travis
     - HOSTNAME=travis
