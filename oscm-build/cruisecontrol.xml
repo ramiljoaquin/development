@@ -49,7 +49,7 @@
 	<target name="runTravisIT" depends="_libraries, devruntime.BUILD, _integrationtests"/>
 
 	<target name="devruntime.BUILD" description="Builds devruntime">
-		<ant dir="." antfile="build.xml" target="package">
+		<ant dir="." antfile="build.xml" target="compileOnly">
 			<property name="projects" value="oscm-devruntime, oscm-app" />
 		</ant>
 	</target>
