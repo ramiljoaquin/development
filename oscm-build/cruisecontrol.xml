@@ -51,11 +51,13 @@
 		<ant antfile="build.xml" target="compile" />
 		<testng classpathref="cp" groups="fast">
 			<classfileset dir="../oscm-build/result/work/" includes="**/*IT?.class"/>
+			<classfileset dir="../oscm-build/result/work/" includes="**/*IT.class"/>
 		</testng>
 	</target>
 
 	<path id="cp">
 		<pathelement location="../libraries/testng/javalib/testng-6.9.10.jar"/>
+		<pathelement location="../libraries/testng/javalib/jcommander-1.30.jar"/>
 		<pathelement location="build"/>
 	</path>
 	<taskdef name="testng" classpathref="cp"
