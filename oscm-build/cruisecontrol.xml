@@ -48,7 +48,7 @@
 	</target>
 
 	<target name="runTravisUT"  depends="_libraries">
-		<ant antfile="build.xml" target="compile" />
+		<!--<ant antfile="build.xml" target="compile" />-->
 		<testng classpathref="cp" groups="fast">
 			<classfileset dir="../oscm-build/result/work/" includes="**/*IT?.class"/>
 			<classfileset dir="../oscm-build/result/work/" includes="**/*IT.class"/>
@@ -58,7 +58,7 @@
 	<path id="cp">
 		<pathelement location="../libraries/testng/javalib/testng-6.9.10.jar"/>
 		<pathelement location="../libraries/testng/javalib/jcommander-1.30.jar"/>
-		<pathelement location="build"/>
+		<pathelement location="../oscm-build/result/work/"/>
 	</path>
 	<taskdef name="testng" classpathref="cp"
 			 classname="org.testng.TestNGAntTask" />
