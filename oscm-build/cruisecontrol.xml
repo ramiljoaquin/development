@@ -48,10 +48,10 @@
 	</target>
 
 	<target name="runTravisUT"  depends="_libraries">
-		<ant antfile="build.xml" target="compile" />
+		<ant antfile="build.xml" target="compileOnly" />
 		<testng classpathref="cp" groups="fast">
-			<classfileset dir="../oscm-build/result/work/" includes="**/*IT?.class"/>
-			<classfileset dir="../oscm-build/result/work/" includes="**/*IT.class"/>
+			<classfileset dir="../oscm-build/result/work/oscm-bililng-unittests" includes="**/*IT?.class"/>
+			<classfileset dir="../oscm-build/result/work/oscm-bililng-unittests" includes="**/*IT.class"/>
 		</testng>
 	</target>
 
