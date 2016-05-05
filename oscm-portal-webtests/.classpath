@@ -5,7 +5,7 @@
 	<classpathentry kind="src" path="properties"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-launcher.jar"/><classpathentry kind="lib" path="/libraries/apache-ant/javalib/wsit-ant-tasks.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxb-impl.jar"/><classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxb-xjc.jar"/><classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxws-rt.jar"/><classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxws-tools.jar"/><classpathentry kind="lib" path="/libraries/sun-metro/javalib/saaj-impl.jar"/>
-	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc/oscm-extsvc-platform.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-psp-extsvc"/>

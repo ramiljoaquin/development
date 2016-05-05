@@ -11,9 +11,8 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc/oscm-extsvc-platform.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="javares/WSDL"/>
-	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-apiversioning-client-handler/oscm-api-client-handler.jar" sourcepath="/oscm-apiversioning-client-handler/"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-devruntime"/>
