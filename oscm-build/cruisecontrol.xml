@@ -50,7 +50,7 @@
 	<target name="runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="compile" />
 		<testng classpathref="cp" groups="fast">
-			<classfileset dir="build" includes="../oscm-build/result/work/**/*IT?.class"/>
+			<classfileset dir="../oscm-build/result/work/build" includes="**/*IT?.class"/>
 		</testng>
 	</target>
 
