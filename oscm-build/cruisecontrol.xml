@@ -43,9 +43,24 @@
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
 	<target name="runJUnitTestsBuild" depends="_libraries, _clean, _package, _unittests, _copyResultArtifacts" />
 
-	<target name="runTravisUT"  depends="_libraries">
+	<target name="_runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="unittests" />
 	</target>
+
+	<target name="runTravisUT"  depends="_libraries">
+		<!--<ant antfile="build.xml" target="compile" />-->
+		<testng classpathref="cp" groups="fast">
+			<classfileset dir="build" includes="../oscm-build/result/work/**/*IT?.class"/>
+		</testng>
+	</target>
+
+	<path id="cp">
+		<pathelement location="../libraries/testng.jar"/>
+		<pathelement location="build"/>
+	</path>
+	<taskdef name="testng" classpathref="cp"
+			 classname="org.testng.TestNGAntTask" />
+
 	<target name="runTravisIT" depends="_libraries, devruntime.BUILD, _integrationtests"/>
 
 	<target name="devruntime.BUILD" description="Builds devruntime">
