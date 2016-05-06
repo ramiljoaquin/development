@@ -49,9 +49,10 @@
 
 	<target name="runTravisUT"  depends="_libraries">
 		<ant antfile="build.xml" target="compile" />
-		<testng classpathref="cp" groups="fast">
-			<classfileset dir="../oscm-build/result/work/oscm-portal-unittests" includes="**/*IT?.class"/>
-			<classfileset dir="../oscm-build/result/work/oscm-portal-unittests" includes="**/*IT.class"/>
+		<testng classpathref="cp" groups="fast" outputDir="../result/test"
+				haltOnFailure="true" verbose="2">
+			<classfileset dir="../oscm-build/result/work/oscm-portal-unittests/classes" includes="**/*IT?.class"/>
+			<classfileset dir="../oscm-build/result/work/oscm-portal-unittests/classes" includes="**/*IT.class"/>
 		</testng>
 	</target>
 
