@@ -59,7 +59,7 @@
 	<path id="cp">
 		<pathelement location="../libraries/testng/javalib/testng-6.9.10.jar"/>
 		<pathelement location="../libraries/testng/javalib/jcommander-1.30.jar"/>
-		<pathelement location="../oscm-build/result/work/"/>
+		<pathelement location="../oscm-build/result/work/**/*.class"/>
 	</path>
 	<taskdef name="testng" classpathref="cp"
 			 classname="org.testng.TestNGAntTask" />
