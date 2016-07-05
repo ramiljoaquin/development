@@ -139,6 +139,7 @@ public class BaseBean {
     public static final String ERROR_INVALID_MARKETPLACE_URL = "error.invalidMarketplaceUrl";
     public static final String ERROR_INVALID_SERVICE_URL = "error.invalidServiceUrl";
     public static final String ERROR_LOGIN = "error.login";
+    public static final String ERROR_LOGIN_TO_CLOSED_MARKETPLACE = "error.loginToClosedMarketplace";
     public static final String ERROR_LOGIN_SAML_SP = "error.login.samlsp";
     public static final String ERROR_LOGIN_IMPOSSIBLE = "error.login.impossible";
     public static final String ERROR_USER_ALREADY_CONFIRMED = "error.user.alreadyConfirmed";
@@ -219,6 +220,7 @@ public class BaseBean {
     public static final String ERROR_RECOVERPASSWORD_INVALID_LINK = "error.recoverpassword.invalid.link";
     public static final String ERROR_GENERATE_AUTHNREQUEST = "error.generating.authnrequest";
     public static final String ERROR_INVALID_SAML_RESPONSE = "error.invalid.samlResponse";
+    public static final String ERROR_INVALID_SAML_RESPONSE_STATUS_CODE = "error.invalid.samlResponseStatusCode";
     public static final String ERROR_SAML_TIMEOUT = "error.timeout.during.saml";
     public static final String ERROR_INVALID_IDP_URL = "error.invalid.idpUrl";
     public static final String ERROR_CSS_CONNECTION = "error.cssConnection";
@@ -230,6 +232,7 @@ public class BaseBean {
     public static final String ERROR_INVALID_GROUP = "error.group.invalid";
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
+    public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -238,6 +241,9 @@ public class BaseBean {
     public static final String WARNING_OWNER_NOT_A_UNIT_ADMIN = "warning.editSubscription.subscriptionOwner.administrator";
     public static final String WARNING_OWNER_IS_SUB_MAN = "warning.editSubscription.subscriptionOwner.subscriptionManager";
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
+    public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
+    public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
+
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -306,6 +312,7 @@ public class BaseBean {
     public static final String INFO_MARKETPLACE_STAGE_SAVED = "info.marketplace.stage.saved";
     public static final String INFO_MARKETPLACE_CREATED = "info.marketplace.created";
     public static final String INFO_MARKETPLACE_DELETED = "info.marketplace.deleted";
+    public static final String INFO_MARKETPLACE_ACCESS_SAVED = "marketplace.manageAccess.saved";
     public static final String INFO_SUPPLIER_ADDED = "info.supplier.added";
     public static final String INFO_SUPPLIER_REMOVED = "info.supplier.removed";
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
@@ -329,7 +336,7 @@ public class BaseBean {
     public static final String INFO_SUPPORTEDLANGUAGE_ADDED = "info.supportedlanguage.added";
     public static final String INFO_NO_MORE_USERS = "info.subscriptions.noMoreUsersForAssignment";
     public static final String INFO_EXTERNAL_PRICE_UPLOADED = "info.externalPriceModel.upload";
-    
+
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";
     public static final String LABEL_PLATFORM_TRANSLARIONS = "label.platform.title";
@@ -370,6 +377,10 @@ public class BaseBean {
 
     public static final String SAML_SP_LOGIN_AUTOSUBMIT_PAGE = Marketplace.MARKETPLACE_ROOT
             + "/serviceProvider.jsf";
+    public static final String MANAGE_PAYMENT_TYPES_PAGE = "/organization/managePaymentEnablement.jsf";
+    public static final String MANAGE_PAYMENT_TYPES_PAGE_XHTML = "/organization/managePaymentEnablement.xhtml";
+    public static final String ACCOUNT_PAYMENT_PAGE = "/marketplace/account/payments.jsf";
+    public static final String ACCOUNT_PAYMENT_PAGE_XHTML = "/marketplace/account/payments.xhtml";
 
     public static final String ERROR_PAGE = "/public/error.jsf";
 
@@ -451,7 +462,7 @@ public class BaseBean {
     ManageLanguageService manageLanguageService;
     LocalizedDataService localizedDataService;
     ExternalPriceModelService externalPriceModelService;
-    
+
     private String token;
     private String tokenIntern;
     protected ServiceLocator sl = new ServiceLocator();
@@ -590,7 +601,7 @@ public class BaseBean {
                 provisioningServiceInternal);
         return provisioningServiceInternal;
     }
-    
+
     public ExternalPriceModelService getExternalPriceModelService() {
         externalPriceModelService = getService(ExternalPriceModelService.class,
                 externalPriceModelService);
@@ -848,8 +859,8 @@ public class BaseBean {
     }
 
     protected HttpSession getSession() {
-        return (HttpSession) getFacesContext().getExternalContext().getSession(
-                false);
+        return (HttpSession) getFacesContext().getExternalContext()
+                .getSession(false);
     }
 
     /**
@@ -907,15 +918,15 @@ public class BaseBean {
      * @return the user details
      */
     public static User getUserFromSession(FacesContext facesContext) {
-        VOUserDetails voUserDetails = getUserFromSessionWithoutException(facesContext);
+        VOUserDetails voUserDetails = getUserFromSessionWithoutException(
+                facesContext);
         if (voUserDetails == null) {
             HttpServletRequest request = (HttpServletRequest) facesContext
                     .getExternalContext().getRequest();
             request.getSession().invalidate();
-            SaaSSystemException se = new SaaSSystemException("Invalid session!");
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
+            SaaSSystemException se = new SaaSSystemException(
+                    "Invalid session!");
+            logger.logError(Log4jLogger.SYSTEM_LOG, se,
                     LogMessageIdentifier.ERROR_USER_VALUE_OBJECT_MISSING_IN_SESSION);
             throw se;
         }
@@ -930,16 +941,16 @@ public class BaseBean {
      *         user is found in the session.
      */
     public VOUserDetails getUserFromSessionWithoutException() {
-        return getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        return getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
     }
 
     public static VOUserDetails getUserFromSessionWithoutException(
             FacesContext facesContext) {
         HttpServletRequest request = (HttpServletRequest) facesContext
                 .getExternalContext().getRequest();
-        return (VOUserDetails) request.getSession().getAttribute(
-                Constants.SESS_ATTR_USER);
+        return (VOUserDetails) request.getSession()
+                .getAttribute(Constants.SESS_ATTR_USER);
     }
 
     /**
@@ -960,7 +971,7 @@ public class BaseBean {
 
     /**
      * Check whether current userRoles in the session and in EJB session context
-     * are the same or not。
+     * are the same or not?
      * 
      * @return true if the current user role is changed
      */
@@ -1119,6 +1130,15 @@ public class BaseBean {
         JSFUtils.writeContentToResponse(content, filename, contentType);
     }
 
+    /**
+     * Delegates to
+     * {@link JSFUtils#writeContentToResponse(byte[], String, String, FacesContext)}
+     */
+    protected void writeContentToResponse(byte[] content, String filename,
+            String contentType, FacesContext fc) throws IOException {
+        JSFUtils.writeContentToResponse(content, filename, contentType, fc);
+    }
+
     FacesContext getFacesContext() {
         return FacesContext.getCurrentInstance();
     }
@@ -1166,30 +1186,30 @@ public class BaseBean {
     }
 
     protected boolean isMarketplaceSet(HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                Marketplace.MARKETPLACE_ROOT);
+        return httpRequest.getServletPath()
+                .startsWith(Marketplace.MARKETPLACE_ROOT);
     }
 
     public boolean isLoggedInAndAdmin() {
-        VOUserDetails user = getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        VOUserDetails user = getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
         return user != null && user.hasAdminRole();
     }
 
     protected boolean isLoggedInAndMarketplaceOwner() {
-        VOUserDetails user = getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance());
+        VOUserDetails user = getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance());
         return user != null
                 && user.getUserRoles().contains(UserRoleType.MARKETPLACE_OWNER);
     }
 
     protected boolean isLoggedInAndVendorManager() {
-        VOUserDetails user = getUserFromSessionWithoutException(getFacesContext());
-        return user != null
-                && (user.getUserRoles().contains(UserRoleType.SERVICE_MANAGER)
-                        || user.getUserRoles().contains(
-                                UserRoleType.BROKER_MANAGER) || user
-                        .getUserRoles().contains(UserRoleType.RESELLER_MANAGER));
+        VOUserDetails user = getUserFromSessionWithoutException(
+                getFacesContext());
+        return user != null && (user.getUserRoles()
+                .contains(UserRoleType.SERVICE_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.BROKER_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.RESELLER_MANAGER));
     }
 
     protected boolean isLoggedInAndPlatformOperator() {
@@ -1208,15 +1228,14 @@ public class BaseBean {
     public boolean isLoggedInAndUnitAdmin() {
         VOUserDetails user = getUserFromSessionWithoutException();
         return user != null
-                && user.getUserRoles()
-                        .contains(UserRoleType.UNIT_ADMINISTRATOR)
-                && !user.getUserRoles().contains(
-                        UserRoleType.ORGANIZATION_ADMIN);
+                && user.getUserRoles().contains(UserRoleType.UNIT_ADMINISTRATOR)
+                && !user.getUserRoles()
+                        .contains(UserRoleType.ORGANIZATION_ADMIN);
     }
 
     protected boolean isLoggedIn() {
-        return getUserFromSessionWithoutException(FacesContext
-                .getCurrentInstance()) != null;
+        return getUserFromSessionWithoutException(
+                FacesContext.getCurrentInstance()) != null;
     }
 
     /**
@@ -1253,12 +1272,14 @@ public class BaseBean {
 
         try {
             String name = URLEncoder.encode("selectedServiceKey", charEncoding);
-            String value = URLEncoder.encode(String.valueOf(sessionBean
-                    .getSelectedServiceKeyForCustomer()), charEncoding);
+            String value = URLEncoder.encode(
+                    String.valueOf(
+                            sessionBean.getSelectedServiceKeyForCustomer()),
+                    charEncoding);
             selectedService = '?' + name + '=' + value;
         } catch (UnsupportedEncodingException e) {
-            extContext.log(getClass().getName()
-                    + ".getSelectedServiceQueryPart()", e);
+            extContext.log(
+                    getClass().getName() + ".getSelectedServiceQueryPart()", e);
 
         }
         return selectedService;
@@ -1405,9 +1426,8 @@ public class BaseBean {
      */
     public boolean isLoggedInAndSubscriptionManager() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
-        return user != null
-                && user.getUserRoles().contains(
-                        UserRoleType.SUBSCRIPTION_MANAGER);
+        return user != null && user.getUserRoles()
+                .contains(UserRoleType.SUBSCRIPTION_MANAGER);
     }
 
     /**
@@ -1418,13 +1438,11 @@ public class BaseBean {
      */
     public boolean isLoggedInAndAllowedToSubscribe() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
-        return user != null
-                && (user.getUserRoles().contains(
-                        UserRoleType.SUBSCRIPTION_MANAGER)
-                        || user.getUserRoles().contains(
-                                UserRoleType.ORGANIZATION_ADMIN) || user
-                        .getUserRoles().contains(
-                                UserRoleType.UNIT_ADMINISTRATOR));
+        return user != null && (user.getUserRoles()
+                .contains(UserRoleType.SUBSCRIPTION_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
+                || user.getUserRoles()
+                        .contains(UserRoleType.UNIT_ADMINISTRATOR));
     }
 
     /**

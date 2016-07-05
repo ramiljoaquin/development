@@ -20,6 +20,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
+import org.oscm.internal.intf.TriggerService;
+import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.ui.authorization.Condition;
 import org.oscm.ui.authorization.Conditions;
 import org.oscm.ui.authorization.Conditions.Cache;
@@ -28,8 +30,6 @@ import org.oscm.ui.menu.MenuBuilder;
 import org.oscm.ui.menu.MenuGroup;
 import org.oscm.ui.menu.MenuGroupBuilder;
 import org.oscm.ui.model.User;
-import org.oscm.internal.intf.TriggerService;
-import org.oscm.internal.types.constants.HiddenUIConstants;
 
 /**
  * Bean keeping and managing the main menu.
@@ -94,6 +94,7 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
     public static final String LINK_PRICE_MODEL_SUBSCRIPTION_PRICE_MODEL = "/priceModel/subscriptionPriceModel.jsf";
     public static final String LINK_SHOP_MANAGE_SUPPLIERS = "/shop/manageSuppliers.jsf";
     public static final String LINK_SHOP_MANAGE_CATEGORIES = "/shop/manageCategories.jsf";
+    public static final String LINK_SHOP_MANAGE_ACCESS = "/shop/manageAccess.jsf";
     public static final String LINK_SHOP_CREATE_MARKETPLACE = "/shop/createMarketplace.jsf";
     public static final String LINK_SHOP_UPDATE_MARKETPLACE = "/shop/updateMarketplace.jsf";
     public static final String LINK_SHOP_DELETE_MARKETPLACE = "/shop/deleteMarketplace.jsf";
@@ -211,6 +212,13 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
             @Override
             public boolean eval() {
                 return getApplicationBean().isReportingAvailable();
+            }
+        };
+
+        final Condition PAYMENTINFO_AVAILABLE = new Condition() {
+            @Override
+            public boolean eval() {
+                return getApplicationBean().isPaymentInfoAvailable();
             }
         };
 
@@ -401,7 +409,8 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
         group.addItem(
                 HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
                 LINK_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
-                or(SERVICE_MANAGER, RESELLER_MANAGER));
+                and(PAYMENTINFO_AVAILABLE,
+                        or(SERVICE_MANAGER, RESELLER_MANAGER)));
         group.addItem(HiddenUIConstants.MENU_ITEM_MANAGE_VAT,
                 LINK_ORGANIZATION_MANAGE_VATS, SERVICE_MANAGER);
         group.addItem(HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_VIEW,
@@ -473,6 +482,8 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
                 or(MARKETPLACE_OWNER, OPERATOR));
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_CATEGORIES,
                 LINK_SHOP_MANAGE_CATEGORIES, MARKETPLACE_OWNER);
+        group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_ACCESS,
+                LINK_SHOP_MANAGE_ACCESS, MARKETPLACE_OWNER);
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
                 LINK_SHOP_MANAGE_SUPPLIERS, MARKETPLACE_OWNER);
         group.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_CREATE,

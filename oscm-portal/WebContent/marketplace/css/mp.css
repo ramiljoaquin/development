@@ -544,7 +544,7 @@ input#Search:focus, #subListForm\:search:focus {
 }
 
 #subListForm\:subscriptionSearch > span > div {
-    float: left
+    float: left;
 }
 
 #subListForm\:submitLink {
@@ -1914,6 +1914,15 @@ table.smallPanel {
 	margin-top: 30px;
 }
 
+#configurationForm2 div.step {
+	display: inline;
+}
+
+.priceModelForm {
+	height: 600px;
+	overflow: auto;
+    width: 615px;
+}
 /* ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 
 6.5 Supplier
 ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----  */

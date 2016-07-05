@@ -92,9 +92,18 @@
 
 
   <!-- SERVLET FILTER -->
-  <filter>  
-    <filter-name>DisableUrlSessionFilter</filter-name>  
-    <filter-class>org.oscm.ui.filter.DisableUrlSessionFilter</filter-class>  
+  <filter>
+    <display-name>IdP Logout Filter</display-name>
+    <filter-name>IdPLogoutFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.IdPLogoutFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/.*|^/marketplace/terms/.*)</param-value>
+    </init-param>
+  </filter>
+  <filter>
+    <filter-name>DisableUrlSessionFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.DisableUrlSessionFilter</filter-class>
     <init-param>
       <param-name>exclude-url-pattern</param-name>
       <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|.*/org.richfaces.resources|.*/javax.faces.resource/.*|^/public/.*)</param-value>
@@ -153,6 +162,16 @@
     <init-param>
       <param-name>exclude-url-pattern</param-name>
       <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/.*|^/marketplace/terms/.*)</param-value>
+    </init-param>
+  </filter>
+  <filter>
+    <display-name>Closed Marketplace Filter</display-name>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.ClosedMarketplaceFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/
+        .*|^/marketplace/terms/.*|.*/marketplace/img/.*|^/marketplace/recoverPassword.jsf|^/marketplace/confirmStartPwdRecovery.jsf)</param-value>
     </init-param>
   </filter>
   <filter>
@@ -229,6 +248,10 @@
       </param-value>
     </init-param>
   </filter>
+  <filter>  
+    <filter-name>DisableUrlFilter</filter-name>  
+    <filter-class>org.oscm.ui.filter.DisableUrlFilter</filter-class>  
+  </filter>
 
   <!-- SERVLET FILTER MAPPINGS -->
   <!-- warning: changing the order of filter mappings has impact on the execution order of filters (filter chain) -->
@@ -249,6 +272,10 @@
   <filter-mapping>
     <filter-name>IdPResponseFilter</filter-name>
     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <url-pattern>/marketplace/*</url-pattern>
   </filter-mapping>
   <filter-mapping>
     <filter-name>IllegalRequestParameterFilter</filter-name>
@@ -285,6 +312,11 @@
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
   <filter-mapping>
+    <filter-name>IdPLogoutFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
+  <filter-mapping>
     <filter-name>auth</filter-name>
     <url-pattern>/opt/*</url-pattern>
   </filter-mapping>
@@ -318,6 +350,10 @@
   <filter-mapping>
     <filter-name>RoleBasedFilter</filter-name>
     <url-pattern>/marketplace/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>DisableUrlFilter</filter-name>
+    <url-pattern>/*</url-pattern>
   </filter-mapping>
 
   <error-page>

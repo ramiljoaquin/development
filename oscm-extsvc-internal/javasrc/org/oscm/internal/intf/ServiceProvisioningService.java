@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2009-02-05                                                       
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2009                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -636,7 +636,8 @@ public interface ServiceProvisioningService {
     public String importTechnicalServices(byte[] xml) throws ImportException,
             OperationNotPermittedException, TechnicalServiceActiveException,
             UpdateConstraintException, TechnicalServiceMultiSubscriptions,
-            UnchangeableAllowingOnBehalfActingException, BillingAdapterNotFoundException;
+            UnchangeableAllowingOnBehalfActingException,
+            BillingAdapterNotFoundException;
 
     /**
      * Activates a marketable service so that it becomes available to potential
@@ -1361,8 +1362,9 @@ public interface ServiceProvisioningService {
 
     /**
      * Validates if subscription can be processed.
-     *
-     * @param service details
+     * 
+     * @param service
+     *            details
      * @return subscription details (stored in the database)
      * @throws OperationNotPermittedException
      *             if the calling user's organization is not allowed to access
@@ -1375,5 +1377,18 @@ public interface ServiceProvisioningService {
     VOSubscriptionDetails validateSubscription(VOService service)
             throws OperationNotPermittedException, SubscriptionStateException,
             ObjectNotFoundException;
+    
+    /**
+     * Returns a list of all customer-specific services provided by the calling
+     * user's organization. Customer-specific services are copies of defined
+     * marketable services. Such a copy is created when a supplier defines a
+     * customer-specific price model for a marketable service.
+     * 
+     * @return the list of customer-specific services
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service) throws ObjectNotFoundException, OperationNotPermittedException;
 
 }

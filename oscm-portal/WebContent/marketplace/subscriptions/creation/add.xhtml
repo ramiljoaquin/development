@@ -33,7 +33,7 @@
     <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
 
       <mp:subscriptionProcess active="configuration"
-        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
+        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable and not subscriptionWizardConversation.paymentConfigurationHidden}"
         service="#{subscriptionWizardConversation.model.service}" bean="#{subscriptionWizardConversation}">
 
         <!-- TABS -->
@@ -119,52 +119,8 @@
             </h:form>
           </rich:tab>
 
-
-          <!-- TAB: PRICE MODEL -->
-          <rich:tab header="#{msg['service.priceModel']}"
-            rendered="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
-            onheaderclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
-            <h:form id="configurationForm2" style="margin-bottom: 10px;">
-              <ui:include src="../priceModelDetails.xhtml">
-                <ui:param name="priceModel" value="#{subscriptionWizardConversation.model.service.priceModel}" />
-                <ui:param name="formName2" value="configurationForm2" />
-                <ui:param name="model" value="#{subscriptionWizardConversation.model}" />
-              </ui:include>
-              <br />
-              <mp:pixelline />
-              <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
-                bean="#{subscriptionWizardConversation}" action="previous" style="float: left;" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
-                action="selectService" style="float: right;" keepDirty="true" />
-              <br />
-              <br />
-            </h:form>
-          </rich:tab>
-
-          <!-- External price model tab -->
-          <rich:tab id="tabExternalPriceModel" header="#{msg['service.priceModel']}"
-            rendered="#{subscriptionWizardConversation.model.service.priceModel.external}">
-            <h:form styleClass="form-in-tab">
-              <ui:include src="../../../priceModel/showExternalPriceModel.xhtml">
-                <ui:param name="controller" value="#{subscriptionWizardConversation}" />
-                <ui:param name="disabled"
-                  value="#{empty subscriptionWizardConversation.model.service.priceModel.vo.presentation}" />
-              </ui:include>
-
-              <br />
-              <mp:pixelline />
-              <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
-                bean="#{subscriptionWizardConversation}" action="previous" style="float: left;" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
-                action="selectService" style="float: right;" keepDirty="true" />
-            </h:form>
-          </rich:tab>
-
         </rich:tabPanel>
       </mp:subscriptionProcess>
-
-      <h:outputText styleClass="recommendedPrice right" value="#{msg['service.recommendedRetailPrice']}"
-        rendered="#{subscriptionWizardConversation.model.service.reseller and subscriptionWizardConversation.model.service.priceModel.chargeable}" />
     </a4j:outputPanel>
     <script type="text/javascript">
 					if (document
