@@ -9,10 +9,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Product;
@@ -20,28 +22,39 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.Uda;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.DeletionConstraintException;
 import org.oscm.internal.types.exception.DomainObjectException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * POJO class to delete all references (Product, Parameter, Event, Role,
  * Subscription ...) from a technical product.
  * 
  */
+@Stateless
 public class TechnicalProductCleaner {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(TechnicalProductCleaner.class);
 
-    private final DataService dm;
+    // private final DataService dm;
+    @EJB(beanInterface = DataService.class)
+    DataService dm;
 
-    private final TenantProvisioningServiceBean tenantProvisioning;
+    // private final TenantProvisioningServiceBean tenantProvisioning;
+    @EJB
+    private TenantProvisioningServiceBean tenantProvisioning;
+
+    public TechnicalProductCleaner() {
+    }
 
     /**
      * Constructor
@@ -64,6 +77,7 @@ public class TechnicalProductCleaner {
      * @param technicalProduct
      *            the technical product to be processed.
      */
+
     public void cleanupTechnicalProduct(TechnicalProduct technicalProduct)
             throws DeletionConstraintException {
 
@@ -87,10 +101,10 @@ public class TechnicalProductCleaner {
      * clean up the landingpageProduct of Product
      */
     void deleteFromLandingPage(Product product) {
-            dm.createNamedQuery(
-                    "LandingpageProduct.deleteLandingpageProductForProduct")
-                    .setParameter("productKey", Long.valueOf(product.getKey()))
-                    .executeUpdate();
+        dm.createNamedQuery(
+                "LandingpageProduct.deleteLandingpageProductForProduct")
+                .setParameter("productKey", Long.valueOf(product.getKey()))
+                .executeUpdate();
     }
 
     /**
@@ -122,69 +136,78 @@ public class TechnicalProductCleaner {
         return result;
     }
 
-    private void deleteProducts(TechnicalProduct technicalProduct,
+    public void deleteProducts(TechnicalProduct technicalProduct,
             final List<Product> productArray)
             throws DeletionConstraintException {
 
         if ((productArray != null) && (productArray.size() > 0)) {
             for (Product product : productArray) {
-                if (product != null) {
-                    if (!product.isDeleted()) {
-                        // there is a product which can not be deleted
-                        // stop deleting process for technical product
-                        DeletionConstraintException e = new DeletionConstraintException(
-                                DomainObjectException.ClassEnum.TECHNICAL_SERVICE,
-                                technicalProduct.getTechnicalProductId(),
-                                DomainObjectException.ClassEnum.SERVICE);
-                        logger.logError(
-                                Log4jLogger.SYSTEM_LOG,
-                                e,
-                                LogMessageIdentifier.ERROR_DELETE_TECHNICAL_PRODUCT_FAILED,
-                                technicalProduct.getTechnicalProductId());
-                        throw e;
-                    }
-
-                    final Subscription subscription = product
-                            .getOwningSubscription();
-                    if (subscription != null) {
-                        if (!subscription.isDeletable()) {
-                            // there is a subscription which can not be deleted
-                            // stop deleting process
-                            DeletionConstraintException e = new DeletionConstraintException(
-                                    DomainObjectException.ClassEnum.TECHNICAL_SERVICE,
-                                    technicalProduct.getTechnicalProductId(),
-                                    DomainObjectException.ClassEnum.SUBSCRIPTION);
-                            logger.logError(
-                                    Log4jLogger.SYSTEM_LOG,
-                                    e,
-                                    LogMessageIdentifier.ERROR_DELETE_TECHNICAL_PRODUCT_FAILED,
-                                    technicalProduct.getTechnicalProductId());
-                            throw e;
-                        }
-                        try {
-                            tenantProvisioning
-                                    .deleteProductInstance(subscription);
-                        } catch (TechnicalServiceOperationException
-                                | TechnicalServiceNotAliveException e) {
-                            logger.logWarn(
-                                    Log4jLogger.SYSTEM_LOG,
-                                    e,
-                                    LogMessageIdentifier.WARN_TECH_SERV_DELETE_INSTANCE_FAILED,
-                                    subscription.getProductInstanceId(),
-                                    subscription.getOrganization()
-                                            .getOrganizationId(),
-                                    technicalProduct.getTechnicalProductId(), e
-                                            .getMessage());
-                        }
-                        deleteSubscriptionAndUdas(subscription);
-                    }
-                    // delete product, all other referenced record from tables
-                    // will be deleted by JPA
-                    dm.remove(product);
-                }
+                deleteProduct(technicalProduct.getTechnicalProductId(),
+                        product.getKey());
             }
         }
 
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void deleteProduct(String techProductId, long productKey)
+            throws DeletionConstraintException {
+        Product product;
+        try {
+            product = dm.getReference(Product.class, productKey);
+        } catch (ObjectNotFoundException e1) {
+            return;
+        }
+        if (product != null) {
+            if (!product.isDeleted()) {
+                // there is a product which can not be deleted
+                // stop deleting process for technical product
+                DeletionConstraintException e = new DeletionConstraintException(
+                        DomainObjectException.ClassEnum.TECHNICAL_SERVICE,
+                        techProductId, DomainObjectException.ClassEnum.SERVICE);
+                logger.logError(
+                        Log4jLogger.SYSTEM_LOG,
+                        e,
+                        LogMessageIdentifier.ERROR_DELETE_TECHNICAL_PRODUCT_FAILED,
+                        techProductId);
+                throw e;
+            }
+
+            final Subscription subscription = product.getOwningSubscription();
+            if (subscription != null) {
+                if (!subscription.isDeletable()) {
+                    // there is a subscription which can not be deleted
+                    // stop deleting process
+                    DeletionConstraintException e = new DeletionConstraintException(
+                            DomainObjectException.ClassEnum.TECHNICAL_SERVICE,
+                            techProductId,
+                            DomainObjectException.ClassEnum.SUBSCRIPTION);
+                    logger.logError(
+                            Log4jLogger.SYSTEM_LOG,
+                            e,
+                            LogMessageIdentifier.ERROR_DELETE_TECHNICAL_PRODUCT_FAILED,
+                            techProductId);
+                    throw e;
+                }
+                try {
+                    tenantProvisioning.deleteProductInstance(subscription);
+                } catch (TechnicalServiceOperationException
+                        | TechnicalServiceNotAliveException e) {
+                    logger.logWarn(
+                            Log4jLogger.SYSTEM_LOG,
+                            e,
+                            LogMessageIdentifier.WARN_TECH_SERV_DELETE_INSTANCE_FAILED,
+                            subscription.getProductInstanceId(), subscription
+                                    .getOrganization().getOrganizationId(),
+                            techProductId, e.getMessage());
+                }
+                deleteUdas(subscription);
+                deleteSubscription(subscription);
+            }
+            // delete product, all other referenced record from tables
+            // will be deleted by JPA
+            dm.remove(product);
+        }
     }
 
     /**
@@ -193,11 +216,17 @@ public class TechnicalProductCleaner {
      * @param subscription
      *            the {@link Subscription} to remove
      */
-    private void deleteSubscriptionAndUdas(Subscription subscription) {
+    private void deleteSubscription(Subscription subscription) {
         Long historyModificationTime = Long.valueOf(DateFactory.getInstance()
                 .getTransactionTime());
         subscription.setHistoryModificationTime(historyModificationTime);
+        dm.remove(subscription);
+    }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void deleteUdas(Subscription subscription) {
+        Long historyModificationTime = Long.valueOf(DateFactory.getInstance()
+                .getTransactionTime());
         // read udas
         Query query = dm.createNamedQuery("Uda.getByTargetTypeAndKey");
         query.setParameter("targetKey", Long.valueOf(subscription.getKey()));
@@ -208,10 +237,6 @@ public class TechnicalProductCleaner {
             uda.setHistoryModificationTime(historyModificationTime);
             dm.remove(uda);
         }
-
-        // delete subscription, all other referenced record from
-        // tables will be deleted by JPA
-        dm.remove(subscription);
     }
 
 }

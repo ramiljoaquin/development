@@ -267,7 +267,8 @@ public class IndexRequestMasterListener extends
         IndexReader reader = searchFactory.getIndexReaderAccessor().open(
                 Product.class);
 
-        Transaction tx = fullTextSession.beginTransaction();
+        // Transaction tx = fullTextSession.beginTransaction();
+        fullTextSession.getTransaction().begin();
 
         try {
             isIndexEmpty = reader.numDocs() == 0;
@@ -283,20 +284,30 @@ public class IndexRequestMasterListener extends
             } else {
                 // otherwise delete previous index
                 fullTextSession.purgeAll(Product.class);
+                fullTextSession.purgeAll(Subscription.class);
+                fullTextSession.purgeAll(UdaDefinition.class);
+                fullTextSession.purgeAll(Uda.class);
+                fullTextSession.purgeAll(Parameter.class);
             }
         }
 
-        // index all entities relevant for full text search
-        // for it: get all products from all global marketplaces
-        // (full text search only available for global marketplaces
-        // by definition)
+        fullTextSession.setFlushMode(FlushMode.MANUAL);
+        fullTextSession.setCacheMode(CacheMode.IGNORE);
 
+        indexProducts(fullTextSession);
+        indexSubscriptions(fullTextSession);
+        indexParameters(fullTextSession);
+        indexUdas(fullTextSession);
+        indexUdaDefs(fullTextSession);
+
+        fullTextSession.getTransaction().commit();
+        // tx.commit();
+    }
+
+    protected void indexProducts(FullTextSession fullTextSession) {
         Query query = dm.createNamedQuery("Marketplace.getAll");
         List<Marketplace> globalMps = ParameterizedTypes.list(
                 query.getResultList(), Marketplace.class);
-
-        fullTextSession.setFlushMode(FlushMode.MANUAL);
-        fullTextSession.setCacheMode(CacheMode.IGNORE);
 
         for (Marketplace mp : globalMps) {
             // call find to ensure entity manager is registered
@@ -315,30 +326,17 @@ public class IndexRequestMasterListener extends
             ScrollableResults results = productsOnMpQuery
                     .scroll(ScrollMode.FORWARD_ONLY);
 
-            int index = 0;
-            while (results.next()) {
-                index++;
-                fullTextSession.index(results.get(0));
-                if (index % BATCH_SIZE == 0) {
-                    fullTextSession.flushToIndexes();
-                    fullTextSession.clear();
-                }
-            }
+            indexObject(fullTextSession, results);
             results.close();
 
         }
-        indexSubscriptions(fullTextSession);
-        indexParameters(fullTextSession);
-        indexUdas(fullTextSession);
-        indexUdaDefs(fullTextSession);
-        tx.commit(); // index is written at commit time
     }
 
     protected void indexUdaDefs(FullTextSession fullTextSession) {
         org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT udaD FROM UdaDefinition udaD, Uda uda where " +
-                        "udaD.dataContainer.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.dataContainer.configurationType!='SUPPLIER' and " +
-                        "uda.dataContainer.udaValue!='' and udaD.dataContainer.defaultValue!=''");
+                .createQuery("SELECT udaD FROM UdaDefinition udaD, Uda uda where "
+                        + "udaD.dataContainer.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.dataContainer.configurationType!='SUPPLIER' and "
+                        + "uda.dataContainer.udaValue!='' and udaD.dataContainer.defaultValue!=''");
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
         indexObject(fullTextSession, results);
         results.close();
@@ -385,6 +383,8 @@ public class IndexRequestMasterListener extends
             if (index % BATCH_SIZE == 0) {
                 fullTextSession.flushToIndexes();
                 fullTextSession.clear();
+                fullTextSession.getTransaction().commit();
+                fullTextSession.getTransaction().begin();
             }
         }
     }
