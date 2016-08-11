@@ -8,14 +8,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.ManagedBean;
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.enums.APIVersion;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.enums.APIVersion;
+import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
@@ -23,6 +29,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * @author Gao
  * 
  */
+@ManagedBean
 public class WSDLDeliverServlet extends HttpServlet {
 
     private static final long serialVersionUID = -3504533241988904286L;
@@ -35,6 +42,9 @@ public class WSDLDeliverServlet extends HttpServlet {
     public static final String SERVICE_NAME = "SERVICE_NAME";
     public static final String FILE_TYPE = "FILE_TYPE";
     public static final String WSDL_ROOT_PATH = "/wsdl/";
+
+    @EJB
+    private ConfigurationServiceLocal cs;
 
     @Override
     public void init() throws ServletException {
@@ -64,6 +74,27 @@ public class WSDLDeliverServlet extends HttpServlet {
                 .getResourceAsStream(filePath);
         try {
             String fileContent = convertStreamToString(fileStream);
+
+            ConfigurationSetting encKeyLen = cs.getConfigurationSetting(
+                    ConfigurationKey.SSO_STS_ENCKEY_LEN,
+                    Configuration.GLOBAL_CONTEXT);
+            fileContent = fileContent.replaceAll("@"
+                    + ConfigurationKey.SSO_STS_ENCKEY_LEN.getKeyName() + "@",
+                    encKeyLen.getValue());
+
+            ConfigurationSetting metadataUrl = cs.getConfigurationSetting(
+                    ConfigurationKey.SSO_STS_METADATA_URL,
+                    Configuration.GLOBAL_CONTEXT);
+            fileContent = fileContent.replaceAll("@"
+                    + ConfigurationKey.SSO_STS_METADATA_URL.getKeyName() + "@",
+                    metadataUrl.getValue());
+
+            ConfigurationSetting url = cs.getConfigurationSetting(
+                    ConfigurationKey.SSO_STS_URL, Configuration.GLOBAL_CONTEXT);
+            fileContent = fileContent.replaceAll("@"
+                    + ConfigurationKey.SSO_STS_URL.getKeyName() + "@",
+                    url.getValue());
+
             response.getWriter().print(fileContent);
         } catch (IOException e) {
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
@@ -123,6 +154,7 @@ public class WSDLDeliverServlet extends HttpServlet {
         while ((i = is.read()) != -1) {
             baos.write(i);
         }
+
         return baos.toString();
     }
 }
