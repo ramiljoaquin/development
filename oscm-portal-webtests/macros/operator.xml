@@ -56,6 +56,8 @@
     <attribute name="domicile" default="DE" />
     <attribute name="createUniqueId" default="true" />
     <attribute name="oprevshare" default="0" />
+    <attribute name="tenantid" default=""/>
+
     <sequential>
       <ifStep test="@{createUniqueId}">
         <then>
@@ -72,10 +74,10 @@
           <verifyProperty description="Check if the new organization is a supplier" name="rolesAttribute" text=".*SUPPLIER.*" regex="true" />
         </condition>
         <then>
-          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile} organization.operatorrevshare=@{oprevshare}" />
+          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile} organization.operatorrevshare=@{oprevshare} tenant.id=@{tenantid}" />
         </then>
         <else>
-          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile}" />
+          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile} tenant.id=@{tenantid}" />
         </else>
       </ifStep>
 

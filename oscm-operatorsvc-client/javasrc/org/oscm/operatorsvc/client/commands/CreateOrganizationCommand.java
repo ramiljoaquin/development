@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.oscm.converter.PropertiesLoader;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.operatorsvc.client.CommandContext;
 import org.oscm.operatorsvc.client.IOperatorCommand;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -48,6 +49,7 @@ public class CreateOrganizationCommand implements IOperatorCommand {
     static final String ARG_USER_SALUTATION = "user.salutation";
 
     static final String MARKETPLACEID = "marketplaceid";
+    static final String ARG_TENANT_ID = "tenant.id";
 
     @Override
     public String getName() {
@@ -72,7 +74,7 @@ public class CreateOrganizationCommand implements IOperatorCommand {
                 ARG_ORGANIZATION_PROPERTIES_FILENAME, ARG_USER_ADDITIONALNAME,
                 ARG_USER_ADDRESS, ARG_USER_EMAIL, ARG_USER_FIRSTNAME,
                 ARG_USER_IDENTIFIER, ARG_USER_LASTNAME, ARG_USER_LOCALE,
-                ARG_USER_PHONE, ARG_USER_SALUTATION, MARKETPLACEID);
+                ARG_USER_PHONE, ARG_USER_SALUTATION, MARKETPLACEID, ARG_TENANT_ID);
     }
 
     @Override
@@ -86,6 +88,13 @@ public class CreateOrganizationCommand implements IOperatorCommand {
         org.setUrl(ctx.getString(ARG_ORGANIZATION_URL));
         org.setDomicileCountry(ctx.getString(ARG_ORGANIZATION_DOMICILE));
         org.setDescription(ctx.getString(ARG_ORGANIZATION_DESCRIPTION));
+
+        final String tenantId = ctx.getStringOptional(ARG_TENANT_ID);
+
+        if (!tenantId.isEmpty()) {
+            final VOTenant retirevedTenant = ctx.getService().getTenantKeyById(tenantId);
+            org.setTenantKey(retirevedTenant.getKey());
+        }
 
         String operatorRevShare = ctx
                 .getStringOptional(ARG_ORGANIZATION_OPERATOR_REVENUE_SHARE);
@@ -144,7 +153,7 @@ public class CreateOrganizationCommand implements IOperatorCommand {
     }
 
     protected LdapProperties loadPropertiesFile(String filename)
-            throws FileNotFoundException, IOException {
+            throws IOException {
         LdapProperties ldapProperties;
         Properties properties = new Properties();
         FileInputStream fis = new FileInputStream(filename);

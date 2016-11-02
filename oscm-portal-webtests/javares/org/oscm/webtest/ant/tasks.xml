@@ -37,5 +37,5 @@
   <taskdef name="udaDef.delete" classname="org.oscm.webtest.setup.UdaDefinitionDeleteTask" />
   <taskdef name="configuration.setValue" classname="org.oscm.webtest.setup.ConfigurationSetValueTask" />
   <taskdef name="paymenttype.define" classname="org.oscm.webtest.setup.PaymentTypeDefineTask" />
+  <taskdef name="tenant.create" classname="org.oscm.webtest.setup.TenantCreateTask" />
 </antlib>
-      

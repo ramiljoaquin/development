@@ -39,6 +39,7 @@ import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOPSP;
 import org.oscm.internal.vo.VOPSPAccount;
 import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTimerInfo;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -688,4 +689,11 @@ public interface OperatorService {
     List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
             Long organizationKey);
 
+    /**
+     *
+     * @param tenantId
+     * @return
+     * @throws ObjectNotFoundException
+     */
+    VOTenant getTenantKeyById(String tenantId) throws ObjectNotFoundException;
 }

@@ -8,10 +8,18 @@
 
 package org.oscm.operatorservice.bean;
 
-import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -20,7 +28,6 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -31,9 +38,30 @@ import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.converter.*;
+import org.oscm.converter.CsvCreator;
+import org.oscm.converter.LocaleHandler;
+import org.oscm.converter.ParameterizedTypes;
+import org.oscm.converter.PriceConverter;
+import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.BillingResult;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.ImageResource;
+import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.OrganizationRefToPaymentType;
+import org.oscm.domobjects.OrganizationReference;
+import org.oscm.domobjects.OrganizationRole;
+import org.oscm.domobjects.OrganizationToRole;
+import org.oscm.domobjects.PSP;
+import org.oscm.domobjects.PSPAccount;
+import org.oscm.domobjects.PSPSetting;
+import org.oscm.domobjects.PaymentType;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.RevenueShareModel;
+import org.oscm.domobjects.SupportedCountry;
+import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -46,12 +74,43 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
 import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.*;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.AddMarketingPermissionException;
+import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.ImageException;
+import org.oscm.internal.types.exception.IncompatibleRolesException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.OrganizationAuthorityException;
+import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
+import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDataException.Reason;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.*;
+import org.oscm.internal.vo.LdapProperties;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOImageResource;
+import org.oscm.internal.vo.VOOperatorOrganization;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOPSP;
+import org.oscm.internal.vo.VOPSPAccount;
+import org.oscm.internal.vo.VOPSPSetting;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOTenant;
+import org.oscm.internal.vo.VOTimerInfo;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
@@ -131,8 +190,12 @@ public class OperatorServiceBean implements OperatorService {
     @EJB(beanInterface = MarketplaceServiceLocal.class)
     protected MarketplaceServiceLocal marketplaceService;
 
+    @EJB(beanInterface = TenantService.class)
+    protected TenantService tenantService;
+
     @Resource
     protected SessionContext sessionCtx;
+
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
@@ -991,6 +1054,14 @@ public class OperatorServiceBean implements OperatorService {
             Tenant tenant = dm.getReference(Tenant.class, tenantKey);
             organization.setTenant(tenant);
         }
+    }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public VOTenant getTenantKeyById(String tenantId) throws ObjectNotFoundException {
+        VOTenant voTenant = tenantService.getTenantByTenantId(tenantId);
+        return voTenant;
+
     }
 
     private boolean isVendor(VOOperatorOrganization voOrganization) {
