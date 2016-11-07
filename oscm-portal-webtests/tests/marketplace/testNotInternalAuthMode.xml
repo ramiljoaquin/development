@@ -17,7 +17,6 @@
     <webtest name="testProfile">
       <mpl_goto.marketplace mid="${mId}" />
       <clickLink label="Login" />
-      <followFrame htmlId="saml2PostFrame"/>
       <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
       <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
       <clickButton name="Login.Submit" />
@@ -36,7 +35,6 @@
     <webtest name="testLoginRedirectToIDP">
       <mpl_goto.marketplace mid="${mId}" />
       <clickLink label="Login" />
-      <followFrame htmlId="saml2PostFrame"/>
       <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
       <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
       <clickButton name="Login.Submit" />
@@ -47,7 +45,6 @@
       <invoke url="${mail.anyurl}/image?webtest=1" />
       <mpl_goto.marketplace mid="${mId}" />
       <clickElement htmlId="formRegister:registerLink" />
-      <followFrame htmlId="saml2PostFrame"/>
       <setInputField value="${ssoRegisterUserId}" xpath="//*[@id='IDToken1']" />
       <setInputField value="${ssoRegisterUserPassword}" xpath="//*[@id='IDToken2']" />
       <clickButton name="Login.Submit" />
@@ -103,7 +100,7 @@
       <not>
         <verifyXPath xpath="//*[@id='manageUsers:resetPassword']" />
       </not>
-      <setInputField htmlId="manageUsers:userIdInput" value="${supplierUserId}" />
+      <setInputField htmlId="manageUsers:manageUsersListTable:userIdInput" value="${supplierUserId}" />
       <not>
         <verifyXPath xpath="//*[@id='manageUsers:resetPassword']" />
       </not>

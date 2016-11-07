@@ -12,7 +12,6 @@
   <macrodef name="operatorPortal.ssoLogin">
     <sequential>
       <invoke url="${bes.http.url}/oscm-portal/" />
-      <followFrame htmlId="saml2PostFrame"/>
       <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
       <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
       <clickButton name="Login.Submit" />
